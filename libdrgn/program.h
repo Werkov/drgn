@@ -169,6 +169,7 @@ struct drgn_program {
 				 *
 				 * This is non-zero if kernel address space
 				 * layout randomization (KASLR) is enabled.
+				 * XXX unused
 				 */
 				uint64_t kaslr_offset;
 				/** Kernel page table. */
@@ -212,6 +213,21 @@ struct drgn_program {
 			 * been cached.
 			 */
 			bool direct_mapping_offset_cached;
+			/**
+			 * The offset from the compiled address of the
+			 * kernel image to its actual address in memory.
+			 *
+			 * This is non-zero if kernel address space
+			 * layout randomization (KASLR) is enabled.
+			 */
+			uint64_t ktext_offset;
+			/**
+			 * ktext_mapped = &_text + ktext_offset
+			 * where
+			 *   &_text is ELF before loading
+			 *   ktext_mapped is from vmcore's mapping probing
+			 */
+			uint64_t ktext_mapped;
 			/*
 			 * Whether we are currently in address translation. Used
 			 * to prevent address translation from recursing.

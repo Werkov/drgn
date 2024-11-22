@@ -25,6 +25,7 @@
 #include "hash_table.h"
 #include "helpers.h"
 #include "io.h"
+#include "log.h"
 #include "linux_kernel.h"
 #include "platform.h"
 #include "program.h"
@@ -1664,7 +1665,8 @@ report_vmlinux(struct drgn_debug_info_load_state *load,
 	}
 
 	uint64_t start, end;
-	err = elf_address_range(elf, prog->vmcoreinfo.kaslr_offset, &start,
+	// XXX calculate ktext_offset from ktext_mapped
+	err = elf_address_range(elf, prog->ktext_offset, &start,
 				&end);
 	if (err) {
 		err = drgn_debug_info_report_error(load, path, NULL, err);
@@ -1732,11 +1734,27 @@ linux_kernel_report_debug_info(struct drgn_debug_info_load_state *load)
 			kmod->fd = fd;
 			kmod->elf = elf;
 		} else if (is_vmlinux) {
+			/* This may be initialized by drgn_find_ktext of existing vmcore */
+			if (prog->ktext_mapped) {
+				uint64_t s, e;
+				/* Dummy load of ELF under the assumption that
+				 * _text is always on the lowest address. */
+				err = elf_address_range(elf,
+						0,
+						&s, &e);
+				if (err) {
+					drgn_log_warning(prog, "Failed ktext_offset calculation.");
+					goto elf_err;
+				}
+				prog->ktext_offset = prog->ktext_mapped - s;
+				drgn_log_info(prog, "Calculated ktext_offset=%lu", prog->ktext_offset);
+			}
 			uint64_t start, end;
 			err = elf_address_range(elf,
-						prog->vmcoreinfo.kaslr_offset,
+						prog->ktext_offset,
 						&start, &end);
 			if (err) {
+elf_err:
 				elf_end(elf);
 				close(fd);
 				err = drgn_debug_info_report_error(load, path,
