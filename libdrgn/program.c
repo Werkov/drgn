@@ -451,7 +451,7 @@ drgn_program_set_core_dump_fd_internal(struct drgn_program *prog, int fd,
 		is_proc_kcore = false;
 	}
 
-	if (have_vmcoreinfo && !is_proc_kcore) {
+	if (!is_proc_kcore) { /* libkdumpfile for kernel ELF vmcores */
 		char *env;
 
 		/* Use libkdumpfile for ELF vmcores if it was requested. */
