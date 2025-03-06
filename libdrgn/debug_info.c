@@ -1391,6 +1391,7 @@ drgn_module_maybe_use_elf_file(struct drgn_module *module,
 	}
 
 noktext_offset:
+	drgn_log_warning(prog, "%s", __func__);
 	uint64_t bias;
 	if (!drgn_module_elf_file_bias(module, file, &bias)) {
 		err = NULL;

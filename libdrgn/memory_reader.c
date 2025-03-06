@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include <unistd.h>
 
 #include "memory_reader.h"
@@ -42,6 +43,7 @@ void drgn_memory_reader_init(struct drgn_memory_reader *reader)
 {
 	drgn_memory_segment_tree_init(&reader->virtual_segments);
 	drgn_memory_segment_tree_init(&reader->physical_segments);
+	fprintf(stderr, "%s(%p)\n", __func__, reader);
 }
 
 static void free_memory_segment_tree(struct drgn_memory_segment_tree *tree)
@@ -77,6 +79,7 @@ drgn_memory_reader_add_segment(struct drgn_memory_reader *reader,
 {
 	assert(min_address <= max_address);
 
+	fprintf(stderr, "%s(%p, %lx, %lx, %i)\n", __func__, reader, min_address, max_address, physical);
 	struct drgn_memory_segment_tree *tree = (physical ?
 						 &reader->physical_segments :
 						 &reader->virtual_segments);

@@ -189,6 +189,7 @@ struct drgn_error *drgn_program_set_kdump(struct drgn_program *prog)
 		return drgn_error_create(DRGN_ERROR_OTHER,
 					 "kdump_new() failed");
 	}
+	fprintf(stderr, "kdump init'd\n");
 
 	/*
 	 * We need to be careful to set libkdumpfile attributes in the correct
